@@ -1,0 +1,603 @@
+<title>나라장터 입찰공고 스크리닝</title>
+<style>
+:root {
+  --navy:#16324f; --navy-2:#1f4266; --copper:#b5651d; --copper-2:#8f4e15;
+  --cream:#faf6ef; --teal:#2f6b63; --border:#dcd3c4; --text:#2b2a28; --muted:#6b675f;
+  --ok-bg:#e4f2e9; --ok-fg:#1f6b45; --check-bg:#fdf1de; --check-fg:#8a5a10; --excl-bg:#fbe7e4; --excl-fg:#9c3b26;
+  --bg:#f3efe6; --card:#ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#161a1e; --card:#1f242a; --text:#e8e6e1; --muted:#a7a29a; --border:#3a3f45;
+    --cream:#20252b; --navy:#7fa8d1; --navy-2:#9fc0e0; --copper:#e0975a; --copper-2:#f0b27e; --teal:#6fbfb3;
+    --ok-bg:#173427; --ok-fg:#7fd9a5; --check-bg:#3a2c12; --check-fg:#f0c26a; --excl-bg:#3a1c17; --excl-fg:#f0a08c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#161a1e; --card:#1f242a; --text:#e8e6e1; --muted:#a7a29a; --border:#3a3f45;
+  --cream:#20252b; --navy:#7fa8d1; --navy-2:#9fc0e0; --copper:#e0975a; --copper-2:#f0b27e; --teal:#6fbfb3;
+  --ok-bg:#173427; --ok-fg:#7fd9a5; --check-bg:#3a2c12; --check-fg:#f0c26a; --excl-bg:#3a1c17; --excl-fg:#f0a08c;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Malgun Gothic", "맑은 고딕", -apple-system, sans-serif;
+  margin: 0; padding: 2rem 1rem 4rem; line-height: 1.55;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+header {
+  background: linear-gradient(135deg, var(--navy), var(--navy-2));
+  color: #fff; border-radius: 14px; padding: 1.8rem 2rem; margin-bottom: 1.5rem;
+}
+header h1 { margin: 0 0 0.4rem; font-size: 1.5rem; }
+header .meta { font-size: 0.88rem; opacity: 0.9; }
+.summary-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 0.7rem; margin-bottom: 2rem;
+}
+.stat {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.9rem 1rem; text-align: center;
+}
+.stat .num { font-size: 1.6rem; font-weight: 700; color: var(--copper); }
+.stat .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+section {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1.4rem 1.6rem; margin-bottom: 1.6rem;
+}
+section h2 {
+  margin: 0 0 1rem; font-size: 1.15rem; color: var(--navy);
+  border-bottom: 2px solid var(--copper); padding-bottom: 0.5rem; display:flex; align-items:baseline; gap:0.5rem;
+}
+:root[data-theme="dark"] section h2, :root:not([data-theme="light"]) section h2 { color: var(--navy-2); }
+@media (prefers-color-scheme: dark) { section h2 { color: var(--navy-2); } }
+section h2 .count { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; min-width: 640px; }
+th, td { border: 1px solid var(--border); padding: 0.55rem 0.6rem; text-align: left; vertical-align: top; }
+th { background: var(--cream); color: var(--navy); font-weight: 700; white-space: nowrap; }
+:root[data-theme="dark"] th, :root:not([data-theme="light"]) th { color: var(--navy-2); }
+@media (prefers-color-scheme: dark) { th { color: var(--navy-2); } }
+td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+td.reason { color: var(--muted); font-size: 0.82rem; min-width: 260px; }
+a { color: var(--teal); text-decoration: none; font-weight: 600; }
+a:hover { text-decoration: underline; }
+.badge { display:inline-block; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+.st-ok { background: var(--ok-bg); color: var(--ok-fg); }
+.st-check { background: var(--check-bg); color: var(--check-fg); }
+.st-excl { background: var(--excl-bg); color: var(--excl-fg); }
+.empty { color: var(--muted); font-style: italic; padding: 0.6rem 0; }
+footer { font-size: 0.8rem; color: var(--muted); margin-top: 1.5rem; }
+footer ol { padding-left: 1.2rem; }
+footer li { margin-bottom: 0.4rem; }
+</style>
+
+<div class="wrap">
+<header>
+  <h1>나라장터 신규 입찰공고 스크리닝</h1>
+  <div class="meta">
+    ㈜바오밥아이앤에프(291-81-03941) · 실내건축공사업(4990) · 경기도 안성시<br>
+    실행 시각: 2026-08-17 08:17 (KST) &nbsp;|&nbsp; 조회 기간: 2026-08-03 08:10 ~ 2026-08-17 08:30 (KST, 등록일시 기준)
+  </div>
+</header>
+
+<div class="summary-grid">
+  <div class="stat"><div class="num">0</div><div class="lbl">안성시 단독 제한</div></div>
+  <div class="stat"><div class="num">10</div><div class="lbl">경기도 지역제한</div></div>
+  <div class="stat"><div class="num">8</div><div class="lbl">전국(무제한)</div></div>
+  <div class="stat"><div class="num">12</div><div class="lbl">가구물품(직접생산)</div></div>
+  <div class="stat"><div class="num">0</div><div class="lbl">LH 노후공임</div></div>
+  <div class="stat"><div class="num">1</div><div class="lbl">참여가능(확정)</div></div>
+</div>
+
+<section>
+  <h2>1. 안성시 단독 제한 공고</h2>
+  <p class="empty">이번 조회 기간 내 신규 등록된 해당 공고가 없습니다.</p>
+</section>
+
+<section>
+  <h2>2. 경기도 지역제한 공고 (안성 포함 — 지역제한 정밀 판정 통과) <span class="count">10건</span></h2>
+  <div class="tbl-wrap"><table>
+<thead><tr><th>공고명</th><th>발주기관</th><th>공고일</th><th>마감일(개찰일)</th><th>추정가격</th><th>참가가능지역</th>
+</tr></thead><tbody>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01674002&amp;bidPbancOrd=000" target="_blank" rel="noopener">120 경기도콜센터 인테리어 공사(건축·기계)</a></td>
+<td>경기도</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">554,607,945원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01675203&amp;bidPbancOrd=000" target="_blank" rel="noopener">120 경기도콜센터 인테리어 공사(건축·기계)</a></td>
+<td>경기도</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">554,607,945원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01671716&amp;bidPbancOrd=000" target="_blank" rel="noopener">회천중 복합특수학급 조성공사</a></td>
+<td>경기도교육청 경기도동두천교육청 회천중학교</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">484,168,183원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01670305&amp;bidPbancOrd=000" target="_blank" rel="noopener">일산병원 시설물 보수공사</a></td>
+<td>국민건강보험공단 일산병원</td>
+<td>2026-08-06</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">69,618,182원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01672999&amp;bidPbancOrd=000" target="_blank" rel="noopener">영상의학과 시설개선 및 장비도입 시설공사(건축)</a></td>
+<td>국립암센터</td>
+<td>2026-08-11</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">161,750,000원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679363&amp;bidPbancOrd=000" target="_blank" rel="noopener">펀그라운드 별내 조성사업(인테리어-건축)</a></td>
+<td>경기도 남양주시</td>
+<td>2026-08-12</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">224,170,909원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679548&amp;bidPbancOrd=000" target="_blank" rel="noopener">펀그라운드 별내 조성사업(인테리어-건축)</a></td>
+<td>경기도 남양주시</td>
+<td>2026-08-12</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">224,170,909원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01673193&amp;bidPbancOrd=000" target="_blank" rel="noopener">백운고 교실출입문 교체공사</a></td>
+<td>경기도교육청 경기도군포의왕교육지원청</td>
+<td>2026-08-11</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">253,743,637원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01680983&amp;bidPbancOrd=000" target="_blank" rel="noopener">신리초등학교 체육관 환경개선공사</a></td>
+<td>경기도용인교육청 신리초등학교</td>
+<td>2026-08-13</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">306,029,091원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01683630&amp;bidPbancOrd=000" target="_blank" rel="noopener">신리초등학교 체육관 환경개선공사[긴급]</a></td>
+<td>경기도용인교육청 신리초등학교</td>
+<td>2026-08-14</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">306,029,091원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section>
+  <h2>3. 전국(무제한) 공고 <span class="count">8건</span></h2>
+  <div class="tbl-wrap"><table>
+<thead><tr><th>공고명</th><th>발주기관</th><th>공고일</th><th>마감일(개찰일)</th><th>추정가격</th><th>참가가능지역</th>
+</tr></thead><tbody>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01671801&amp;bidPbancOrd=000" target="_blank" rel="noopener">2026년 파주미래교육캠퍼스 시설물보완공사(노후 학생숙소 개보수(건축)공사)</a></td>
+<td>재단법인 경기도평생교육진흥원</td>
+<td>2026-08-07</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">1,028,030,909원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01677006&amp;bidPbancOrd=000" target="_blank" rel="noopener">대학본관 2층 글로컬부총장실 및 3층 교육혁신원장실 환경개선공사(긴급)</a></td>
+<td>조선대학교</td>
+<td>2026-08-11</td>
+<td>2026-08-18 10:10:00 (개찰일시로 대체)</td>
+<td class="num">107,000,000원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01665199&amp;bidPbancOrd=000" target="_blank" rel="noopener">간호학과 실습실 환경개선 공사</a></td>
+<td>한서대학교</td>
+<td>2026-08-04</td>
+<td>2026-08-18 10:30:00 (개찰일시로 대체)</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01675022&amp;bidPbancOrd=000" target="_blank" rel="noopener">하이브리드 수술실 구축공사(건축)</a></td>
+<td>경북대학교병원</td>
+<td>2026-08-11</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">495,505,454원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01677112&amp;bidPbancOrd=000" target="_blank" rel="noopener">국립지도박물관 현대관 공간 개편 공사</a></td>
+<td>국토교통부 국토지리정보원</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01678548&amp;bidPbancOrd=000" target="_blank" rel="noopener">국립지도박물관 현대관 공간 개편 공사</a></td>
+<td>국토교통부 국토지리정보원</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01665682&amp;bidPbancOrd=000" target="_blank" rel="noopener">HIP 1층 외래 공간 재배치 공사(건축)</a></td>
+<td>분당서울대학교병원</td>
+<td>2026-08-04</td>
+<td>2026-08-20 12:00:00</td>
+<td class="num">2,550,683,636원</td>
+<td>전국(무제한)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01662933&amp;bidPbancOrd=000" target="_blank" rel="noopener">(서강대) 엠마오관 3층 이노베이션룸 조성(건축) 공사</a></td>
+<td>서강대학교산학협력단</td>
+<td>2026-08-03</td>
+<td>2026-08-24 11:00:00</td>
+<td class="num">528,000,000원</td>
+<td>전국(무제한)</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section>
+  <h2>4. 가구물품 (직접생산확인 30개 품목) 공고 <span class="count">12건</span></h2>
+  <div class="tbl-wrap"><table>
+<thead><tr><th>공고명</th><th>발주기관</th><th>공고일</th><th>마감일(개찰일)</th><th>추정가격</th><th>세부품명(코드)</th></tr></thead><tbody>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01668820&amp;bidPbancOrd=001" target="_blank" rel="noopener">가천대학교 중앙도서관(M) 가구 및 집기 구입</a></td>
+<td>가천대학교</td>
+<td>2026-08-07</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">59,045,455원</td>
+<td>책상(5610170301)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01674140&amp;bidPbancOrd=000" target="_blank" rel="noopener">구리지점 이전 레이아웃 가구 제작설치</a></td>
+<td>중소기업은행</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">80,717,273원</td>
+<td>카운터(5612100201)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01674628&amp;bidPbancOrd=000" target="_blank" rel="noopener">하남공단지점 전체 레이아웃 가구 제작설치</a></td>
+<td>중소기업은행</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">148,818,182원</td>
+<td>카운터(5612100201)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679384&amp;bidPbancOrd=000" target="_blank" rel="noopener">수원여자대학교 2026학년도 대학 실험실습기자재 구매(언어치료기기)(혁신)</a></td>
+<td>수원여자대학교 산학협력단</td>
+<td>2026-08-12</td>
+<td>2026-08-19 14:00:00</td>
+<td class="num">114,180,455원</td>
+<td>책상(5610170301)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01673217&amp;bidPbancOrd=000" target="_blank" rel="noopener">기숙사 침대(프레임 및 매트리스)구매</a></td>
+<td>에스케이오션플랜트(주)</td>
+<td>2026-08-10</td>
+<td>2026-08-19 15:00:00</td>
+<td class="num">27,422,000원</td>
+<td>침대(5610151501)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679011&amp;bidPbancOrd=000" target="_blank" rel="noopener">나라키움 관악 복합관사 개발사업 관급자재(가구) 제작 및 설치</a></td>
+<td>한국자산관리공사</td>
+<td>2026-08-12</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">258,455,186원</td>
+<td>장롱(5610151601), 신발장(5610153101)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01683121&amp;bidPbancOrd=000" target="_blank" rel="noopener">경성대학교 언어교육센터 어학연수과정 수강용 책상, 의자 구매</a></td>
+<td>경성대학교</td>
+<td>2026-08-14</td>
+<td>2026-08-20 11:00:00 (개찰일시로 대체)</td>
+<td class="num">50,781,818원</td>
+<td>수강용탁자(5612150501)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01681656&amp;bidPbancOrd=000" target="_blank" rel="noopener">[MEGA] 교육·연구 환경개선을 위한 비품 구입</a></td>
+<td>대구대학교 산학협력단</td>
+<td>2026-08-13</td>
+<td>2026-08-21 11:00:00 (개찰일시로 대체)</td>
+<td class="num">38,374,545원</td>
+<td>책상(5610170301)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01673255&amp;bidPbancOrd=000" target="_blank" rel="noopener">(긴급)하남시 어린이영어도서관 디자인가구  제작 및 설치(협상에 의한 계약)</a></td>
+<td>경기도 하남시 평생교육원</td>
+<td>2026-08-10</td>
+<td>2026-08-21 18:00:00 (개찰일시로 대체)</td>
+<td class="num">449,851,818원</td>
+<td>책장(5610150701), 책상(5610170301), 회의용탁자(5610170601), 카운터(5612100201), 실습대(5612150101), 전시용진열대(5612190201)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01681382&amp;bidPbancOrd=000" target="_blank" rel="noopener">과테말라 섬유TASK센터 조성지원사업 3차년도 제5-1차 장비(벽면실험대)</a></td>
+<td>재단법인 경북테크노파크</td>
+<td>2026-08-13</td>
+<td>2026-08-25 12:00:00</td>
+<td class="num">98,597,000원</td>
+<td>실험대(5612200101)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01668942&amp;bidPbancOrd=000" target="_blank" rel="noopener">【2026년 신산업특화 2.0사업】 교육모니터링 기반 신장비 구축 프로그램  유한생명바이오학과 실험실습기자재 구입 재입찰공고</a></td>
+<td>유한대학 산학협력단</td>
+<td>2026-08-06</td>
+<td>2026-08-26 13:00:00 (개찰일시로 대체)</td>
+<td class="num">비공개(1원)</td>
+<td>실습대(5612150101)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01678663&amp;bidPbancOrd=000" target="_blank" rel="noopener">서울대학교 탄소중립관(68-1동) 디자인 가구 제작 및 설치</a></td>
+<td>서울대학교</td>
+<td>2026-08-12</td>
+<td>2026-08-27 10:00:00</td>
+<td class="num">113,500,000원</td>
+<td>책장(5610150701)</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section>
+  <h2>5. LH 노후공임 리모델링 공고</h2>
+  <p class="empty">이번 조회 기간 내 신규 등록된 해당 공고가 없습니다.</p>
+</section>
+
+<section>
+  <h2>6. 제외(복수면허 소요/지역제한) 및 확인 권장 목록 <span class="count">22건 — 빠른 리스크 스캔용</span></h2>
+  <div class="tbl-wrap"><table>
+<thead><tr><th>공고명</th><th>발주기관</th><th>공고일</th><th>마감일(개찰일)</th><th>추정가격</th><th>참가가능지역</th>
+<th>분류</th><th>사유</th>
+</tr></thead><tbody>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01674002&amp;bidPbancOrd=000" target="_blank" rel="noopener">120 경기도콜센터 인테리어 공사(건축·기계)</a></td>
+<td>경기도</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">554,607,945원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-excl">제외(복수면허 소요)</span></td>
+<td class="reason">업종배분: 실내건축공사업 76.6% + 기계설비ㆍ가스공사업 23.4% — 기계설비 면허 미보유로 참여 불가</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01675203&amp;bidPbancOrd=000" target="_blank" rel="noopener">120 경기도콜센터 인테리어 공사(건축·기계)</a></td>
+<td>경기도</td>
+<td>2026-08-10</td>
+<td>2026-08-18 10:00:00</td>
+<td class="num">554,607,945원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-excl">제외(복수면허 소요)</span></td>
+<td class="reason">업종배분: 실내건축공사업 76.6% + 기계설비ㆍ가스공사업 23.4% — 기계설비 면허 미보유로 참여 불가 (위 건과 동일 사업, 별도 공고번호로 재등록)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01677006&amp;bidPbancOrd=000" target="_blank" rel="noopener">대학본관 2층 글로컬부총장실 및 3층 교육혁신원장실 환경개선공사(긴급)</a></td>
+<td>조선대학교</td>
+<td>2026-08-11</td>
+<td>2026-08-18 10:10:00 (개찰일시로 대체)</td>
+<td class="num">107,000,000원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 마감일시 필드 누락(개찰일시로 대체 표기)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01665199&amp;bidPbancOrd=000" target="_blank" rel="noopener">간호학과 실습실 환경개선 공사</a></td>
+<td>한서대학교</td>
+<td>2026-08-04</td>
+<td>2026-08-18 10:30:00 (개찰일시로 대체)</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 마감일시 필드 누락(개찰일시로 대체 표기)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01671716&amp;bidPbancOrd=000" target="_blank" rel="noopener">회천중 복합특수학급 조성공사</a></td>
+<td>경기도교육청 경기도동두천교육청 회천중학교</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">484,168,183원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-excl">제외(복수면허 소요)</span></td>
+<td class="reason">업종배분: 실내건축공사업 87% + 기계설비ㆍ가스공사업 13% — 기계설비 면허 미보유로 참여 불가</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01675022&amp;bidPbancOrd=000" target="_blank" rel="noopener">하이브리드 수술실 구축공사(건축)</a></td>
+<td>경북대학교병원</td>
+<td>2026-08-11</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">495,505,454원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 의료가스/전기설비 등 복수공종 포함 가능성 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01677112&amp;bidPbancOrd=000" target="_blank" rel="noopener">국립지도박물관 현대관 공간 개편 공사</a></td>
+<td>국토교통부 국토지리정보원</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 소액수의계약(전국 대상), 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01678548&amp;bidPbancOrd=000" target="_blank" rel="noopener">국립지도박물관 현대관 공간 개편 공사</a></td>
+<td>국토교통부 국토지리정보원</td>
+<td>2026-08-12</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">90,909,091원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 위 건과 동일 사업, 별도 공고번호로 재등록</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01673465&amp;bidPbancOrd=000" target="_blank" rel="noopener">석수2동 행정복지센터 리모델링공사</a></td>
+<td>경기도 안양시 만안구</td>
+<td>2026-08-11</td>
+<td>2026-08-19 10:00:00</td>
+<td class="num">59,900,000원</td>
+<td>-</td>
+<td><span class="badge st-excl">제외(지역제한)</span></td>
+<td class="reason">수의계약·소재지 기준(본사또는참여지사소재지) — 발주기관: 경기도 안양시 만안구(안성시 아님)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01669671&amp;bidPbancOrd=000" target="_blank" rel="noopener">송호고 시청각실 및 보건실 환경개선공사</a></td>
+<td>경기도교육청 송호고등학교</td>
+<td>2026-08-12</td>
+<td>2026-08-19 11:00:00</td>
+<td class="num">140,267,273원</td>
+<td>-</td>
+<td><span class="badge st-excl">제외(지역제한)</span></td>
+<td class="reason">수의계약·소재지 기준(본사또는참여지사소재지) — 발주기관: 경기도교육청 송호고등학교, 공사현장 소재지 경기도 안산시 상록구(안산시≠안성시, 발주기관 소재지 기준으로 안성 소재 업체 참여 불가로 판단)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01670305&amp;bidPbancOrd=000" target="_blank" rel="noopener">일산병원 시설물 보수공사</a></td>
+<td>국민건강보험공단 일산병원</td>
+<td>2026-08-06</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">69,618,182원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율(cnsttyAccotShreRateList) 정보 없음 — 실내건축공사업 단독 여부 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01672999&amp;bidPbancOrd=000" target="_blank" rel="noopener">영상의학과 시설개선 및 장비도입 시설공사(건축)</a></td>
+<td>국립암센터</td>
+<td>2026-08-11</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">161,750,000원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 실내건축공사업 단독 여부 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679363&amp;bidPbancOrd=000" target="_blank" rel="noopener">펀그라운드 별내 조성사업(인테리어-건축)</a></td>
+<td>경기도 남양주시</td>
+<td>2026-08-12</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">224,170,909원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 수요기관이 남양주시로 특정 시·군 단독제한 가능성 있어 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01679548&amp;bidPbancOrd=000" target="_blank" rel="noopener">펀그라운드 별내 조성사업(인테리어-건축)</a></td>
+<td>경기도 남양주시</td>
+<td>2026-08-12</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">224,170,909원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 위 건과 동일 사업, 별도 공고번호로 재등록 (수요기관 남양주시 단독제한 가능성 원문 확인 필요)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01681097&amp;bidPbancOrd=000" target="_blank" rel="noopener">2026년 성남시의료원 장례식장 환경개선 건축 공사</a></td>
+<td>성남시의료원</td>
+<td>2026-08-13</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">170,046,364원</td>
+<td>-</td>
+<td><span class="badge st-excl">제외(지역제한)</span></td>
+<td class="reason">수의계약·소재지 기준(본사또는참여지사소재지) — 발주기관: 성남시의료원(성남시)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01681476&amp;bidPbancOrd=000" target="_blank" rel="noopener">수색전기사업소 일산전기주재 처소 보수공사</a></td>
+<td>한국철도공사 서울본부</td>
+<td>2026-08-13</td>
+<td>2026-08-20 10:00:00</td>
+<td class="num">187,330,000원</td>
+<td>-</td>
+<td><span class="badge st-excl">제외(복수면허 소요) / 지역 확인필요</span></td>
+<td class="reason">첨부파일명에 &#x27;특기시방서(기계설비)&#x27; 포함 — 기계설비 면허 미보유로 참여 불가 (수의계약이나 지역제한판단기준 필드 미기재로 참가가능지역 자체도 불명확, 원문 확인 필요)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01665682&amp;bidPbancOrd=000" target="_blank" rel="noopener">HIP 1층 외래 공간 재배치 공사(건축)</a></td>
+<td>분당서울대학교병원</td>
+<td>2026-08-04</td>
+<td>2026-08-20 12:00:00</td>
+<td class="num">2,550,683,636원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 추정가격 규모가 커 하도급/복수공종 포함 가능성 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01680801&amp;bidPbancOrd=000" target="_blank" rel="noopener">신하초 7동(후관) 상담실 및 컴퓨터실 리모델링 공사</a></td>
+<td>경기도교육청 경기도이천교육지원청 신하초등학교</td>
+<td>2026-08-13</td>
+<td>2026-08-20 15:00:00</td>
+<td class="num">86,089,091원</td>
+<td>-</td>
+<td><span class="badge st-excl">제외(지역제한)</span></td>
+<td class="reason">수의계약·소재지 기준(본사또는참여지사소재지) — 발주기관: 경기도교육청 경기도이천교육지원청 신하초등학교(이천시)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01673193&amp;bidPbancOrd=000" target="_blank" rel="noopener">백운고 교실출입문 교체공사</a></td>
+<td>경기도교육청 경기도군포의왕교육지원청</td>
+<td>2026-08-11</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">253,743,637원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음, 첨부파일 키워드 미검출 — 문/창호 공사 해당 여부(금속창호공사업 필요 가능성) 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01680983&amp;bidPbancOrd=000" target="_blank" rel="noopener">신리초등학교 체육관 환경개선공사</a></td>
+<td>경기도용인교육청 신리초등학교</td>
+<td>2026-08-13</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">306,029,091원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 지붕/천정패널 관련 부주력공종 필요 여부 원문 확인 필요</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01683630&amp;bidPbancOrd=000" target="_blank" rel="noopener">신리초등학교 체육관 환경개선공사[긴급]</a></td>
+<td>경기도용인교육청 신리초등학교</td>
+<td>2026-08-14</td>
+<td>2026-08-21 10:00:00</td>
+<td class="num">306,029,091원</td>
+<td>경기도(광역, 안성 포함 추정)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 위 건의 긴급 재공고(동일 사업)</td>
+</tr>
+<tr>
+<td><a href="https://www.g2b.go.kr/link/PNPE027_01/single/?bidPbancNo=R26BK01662933&amp;bidPbancOrd=000" target="_blank" rel="noopener">(서강대) 엠마오관 3층 이노베이션룸 조성(건축) 공사</a></td>
+<td>서강대학교산학협력단</td>
+<td>2026-08-03</td>
+<td>2026-08-24 11:00:00</td>
+<td class="num">528,000,000원</td>
+<td>전국(무제한)</td>
+<td><span class="badge st-check">확인 권장</span></td>
+<td class="reason">업종배분비율 정보 없음 — 실내건축공사업 단독 여부 원문 확인 필요</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<footer>
+  <strong>각주</strong>
+  <ol>
+    <li>면허 필요 여부(복수면허 소요/확인 권장)는 업종배분비율(cnsttyAccotShreRateList) 및 공고명·첨부파일명 키워드 기반 자동 분류입니다. 참가 전 반드시 공고문·설계내역서 원문을 직접 확인하세요.</li>
+    <li>물품(가구) 섹션은 지역 제한 여부를 별도로 확인하지 않았습니다(전국 대상 스크리닝). 참가 전 참가가능지역을 원문에서 확인하세요.</li>
+    <li>"제외(지역제한)"으로 표시된 건은 수의계약·소재지 기준(rgnLmtBidLocplcJdgmBssNm="본사또는참여지사소재지") 공고에서 발주기관명 또는 공사현장 소재지로 추정한 자동 판정입니다. 경기도 지역제한 섹션(2번)에 남은 나머지 건들도 "제한경쟁 + 판단기준 필드 공란"을 경기도 광역 지역제한으로 잠정 신뢰(rule 2)한 것이므로, 실제로는 특정 시·군 단독 제한일 가능성을 배제할 수 없습니다 — 참가 전 반드시 나라장터 원문에서 정확한 참가가능지역을 재확인해야 합니다.</li>
+    <li>본 리포트는 참고용 초안이며, 최종 참가 여부는 나라장터(G2B) 원문 확인 후 결정하시기 바랍니다.</li>
+  </ol>
+</footer>
+</div>
